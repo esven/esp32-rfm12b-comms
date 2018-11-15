@@ -1,5 +1,4 @@
-# Hello World Example
+# ESP32 RFM12B Communications
 
-Starts a FreeRTOS task to print "Hello World"
-
-See the README.md file in the upper level 'examples' directory for more information about examples.
+Uses the RFM12B Modules by HopeRF to communicate with different sensors.
+This project has just started (Nov 2018) and is WIP.

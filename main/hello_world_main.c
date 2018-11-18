@@ -66,7 +66,10 @@ void app_main()
     printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
             (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    printf("Initializing RFM12b\n");
     RFM_Init();
+    printf("Initializing RFM12b finished\n");
 
     while (1) {
     	RFM_Send(2, send_buffer, sizeof(send_buffer));

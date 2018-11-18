@@ -34,7 +34,6 @@ void RFM_Init(void)
 	gpio_isr_handler_add(RFM_IRQ_PIN, &EXTI9_5_IRQHandler, NULL);
 
 	RFM_xfer(0x0000);
-
 	RFM_xfer(RFM_SLEEP_MODE);
 
 	RFM_xfer(RFM_TX_REG);
@@ -192,6 +191,7 @@ uint8_t RFM_Send(uint16_t id, uint8_t *data, uint8_t len)
 		return 1;
 
 
+	printf("Send packet\n");
 	// enable transmitter
 	RFM_xfer(RFM_XMIT_MODE);
 

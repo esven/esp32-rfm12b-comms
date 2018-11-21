@@ -5,6 +5,7 @@
  *
  */
 #include "driver/spi_master.h"
+#include "driver/spi_common.h"
 #include "driver/gpio.h"
 #include <string.h>
 
@@ -32,6 +33,7 @@ void RFM_SPI_init(void)
 			.spics_io_num=RFM_CS_PIN,              //CS pin
 			.queue_size=1,
 	};
+//	ret=spicommon_eriph_claim(VSPI_HOST);
 	//Initialize the SPI bus
 	ret=spi_bus_initialize(VSPI_HOST, &buscfg, 0);
 	ESP_ERROR_CHECK(ret);

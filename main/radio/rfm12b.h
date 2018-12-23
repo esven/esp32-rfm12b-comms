@@ -9,6 +9,7 @@
 #define RADIO_RFM12B_H_
 
 #include <stdint.h>
+#include "esp_attr.h"
 
 enum {
 	RFM_STATE_SLEEP,
@@ -42,7 +43,7 @@ void RFM_SetRXWidth(uint8_t w);
 void RFM_SetGroup(uint8_t g);
 void RFM_SetBand(uint8_t b);
 void RFM_SetFreq(uint16_t f);
-void RFM_SetFIFO(uint8_t g);
+void IRAM_ATTR RFM_SetFIFO(uint8_t g);
 
 void RFM_IdleMode();
 void RFM_SniffMode(uint8_t a);

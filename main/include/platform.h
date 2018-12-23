@@ -35,7 +35,11 @@
 //#define LED_GREEN(x)       GPIO_WriteBit(LED_GREEN_GPIO, LED_GREEN_PIN, x)
 //#define LED_YELLOW(x)      GPIO_WriteBit(LED_YELLOW_GPIO, LED_YELLOW_PIN, x)
 
-#define RFM_CS(x)          gpio_set_level(RFM_CS_PIN, x)
+#define digitalPinToPort(pin)       (((pin)>31)?1:0)
+#define digitalPinToBitMask(pin)    (1UL << (((pin)>31)?((pin)-32):(pin)))
+
+#define RFM_CS_SET()		GPIO.out_w1ts = digitalPinToBitMask(RFM_CS_PIN);
+#define RFM_CS_RST()		GPIO.out_w1tc = digitalPinToBitMask(RFM_CS_PIN);
 //#define RFM_RST(x)         GPIO_WriteBit(RFM_RST_GPIO, RFM_RST_PIN, x)
 #define RFM_IRQ_READ()     gpio_get_level(RFM_IRQ_PIN)
 

@@ -7,22 +7,22 @@
 #include "driver/gpio.h"
 #include <stdint.h>
 
-static uint8_t state = RFM_STATE_SLEEP;
-static uint8_t RFM_GroupID = 0x48;
-static uint8_t RFM_Buffer[512];
-static uint16_t RFM_Idx;
-static uint8_t RFM_Len;
+static uint8_t DRAM_ATTR state = RFM_STATE_SLEEP;
+static uint8_t DRAM_ATTR RFM_GroupID = 0x48;
+static uint8_t DRAM_ATTR RFM_Buffer[512];
+static uint16_t DRAM_ATTR RFM_Idx;
+static uint8_t DRAM_ATTR RFM_Len;
 
 static void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
 
-uint16_t RFM_xfer(uint16_t d)
+uint16_t IRAM_ATTR RFM_xfer(uint16_t d)
 {
 	uint16_t ret;
-	RFM_CS(Bit_RESET);
+	RFM_CS_RST();
 
 	ret = SPI_Xfer(d);
 
-	RFM_CS(Bit_SET);
+	RFM_CS_SET();
 	return ret;
 }
 
@@ -92,7 +92,7 @@ void RFM_SetGroup(uint8_t g)
 
 // g = 0 - receive all packets starting 2D.
 //   > 0 - receive all packets starting 2D gg.
-void RFM_SetFIFO(uint8_t g)
+void IRAM_ATTR RFM_SetFIFO(uint8_t g)
 {
 	if (g == 0) {
 		RFM_xfer(0xca8b); // fifo level 8, 1byte sync, !ff, dr
@@ -123,7 +123,7 @@ void RFM_SetFreq(uint16_t f)
 	}
 }
 
-void RFM_IdleMode()
+void IRAM_ATTR RFM_IdleMode()
 {
 	RFM_SetFIFO(RFM_GroupID); // special ID
 

@@ -44,7 +44,7 @@ void GPIO_Configuration(void)
 	gpioConfig.intr_type    = GPIO_INTR_DISABLE;
 	gpio_config(&gpioConfig);
 
-	RFM_CS(Bit_SET);
+	RFM_CS_SET();
 }
 
 void app_main()

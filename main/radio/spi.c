@@ -28,12 +28,11 @@ void RFM_SPI_init(void)
 			.flags= SPICOMMON_BUSFLAG_MASTER | SPICOMMON_BUSFLAG_NATIVE_PINS,
 	};
 	spi_device_interface_config_t devcfg={
-			.clock_speed_hz=1*1000*1000,           //Clock out at 8 MHz
+			.clock_speed_hz=8*1000*1000,           //Clock out at 8 MHz
 			.mode=0,                               //SPI mode 0
 			.spics_io_num=RFM_CS_PIN,              //CS pin
 			.queue_size=1,
 	};
-//	ret=spicommon_eriph_claim(VSPI_HOST);
 	//Initialize the SPI bus
 	ret=spi_bus_initialize(VSPI_HOST, &buscfg, 0);
 	ESP_ERROR_CHECK(ret);
@@ -46,13 +45,14 @@ void RFM_SPI_init(void)
 
 
 /* Simple Byte transmit */
-uint16_t SPI_Xfer(const uint16_t data)
+uint16_t IRAM_ATTR SPI_Xfer(const uint16_t data)
 {
 	uint16_t retData;
 	esp_err_t ret;
 	spi_transaction_t t;
-	memset(&t, 0, sizeof(t));        //Zero out the transaction
-	t.length=16;                     //Command is 8 bits
+	uint8_t *s = (uint8_t *) &t;
+	for (int n = sizeof(t); n; n--, s++) *s = 0;  //Zero out the transaction
+	t.length=16;                     //Command is 16 bits
 	t.tx_buffer = &data;       //The data is the cmd itself
 	ret=spi_device_polling_transmit(spi, &t);  //Transmit!
 	assert(ret==ESP_OK);            //Should have had no issues.

@@ -13,7 +13,7 @@ static uint8_t DRAM_ATTR RFM_Buffer[512];
 static uint16_t DRAM_ATTR RFM_Idx;
 static uint8_t DRAM_ATTR RFM_Len;
 
-static void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
+//static void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
 
 uint16_t IRAM_ATTR RFM_xfer(uint16_t d)
 {
@@ -29,9 +29,6 @@ uint16_t IRAM_ATTR RFM_xfer(uint16_t d)
 void RFM_Init(void)
 {
 	RFM_SPI_init();
-
-	gpio_install_isr_service(0);
-	gpio_isr_handler_add(RFM_IRQ_PIN, &EXTI9_5_IRQHandler, NULL);
 
 	RFM_xfer(0x0000);
 	RFM_xfer(RFM_SLEEP_MODE);
@@ -63,6 +60,9 @@ void RFM_Init(void)
 	for (int i = 0; i < sizeof(RFM_Buffer); i++) {
 		RFM_Buffer[i] = 0;
 	}
+
+//	gpio_install_isr_service(0);
+//	gpio_isr_handler_add(RFM_IRQ_PIN, &EXTI9_5_IRQHandler, NULL);
 }
 
 void RFM_SetDataRate(uint8_t r)
@@ -192,6 +192,7 @@ uint8_t RFM_Send(uint16_t id, uint8_t *data, uint8_t len)
 
 
 	printf("Send packet\n");
+	RFM_LED1_ON();
 	// enable transmitter
 	RFM_xfer(RFM_XMIT_MODE);
 
@@ -232,17 +233,24 @@ uint8_t RFM_Send(uint16_t id, uint8_t *data, uint8_t len)
 }
 
 
-static void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
+//static void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
+void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
 {
 	static uint8_t chksum;
 	static uint16_t status;
 	static uint8_t data;
-	uint8_t count = 0;
+//	uint8_t count = 0;
+	RFM_LED1_OFF();
 
-	do {
+//	do {
 		status = RFM_xfer(0x0000);
-		count++;
-	} while (!status && count < 10);
+//		count++;
+//	} while (!status && count < 10);
+
+	if (status & RFM_STATUS_FFOV_RGUR)
+		RFM_LED2_ON();
+	else
+		RFM_LED2_OFF();
 
 	// ignore LBD, EXT, WKUP, POR, FFOV
 	if (status & 0x8000) {

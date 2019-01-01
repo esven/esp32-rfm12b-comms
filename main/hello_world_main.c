@@ -28,59 +28,65 @@
 void GPIO_Configuration(void)
 {
 	gpio_config_t gpioConfig;
-	// GPI4 - RFM - IRQn
+	// GPIO4 - RFM - IRQn
 	gpioConfig.pin_bit_mask = GPIO_SEL_4;
-	gpioConfig.mode         = GPIO_MODE_INPUT;
-	gpioConfig.pull_up_en   = GPIO_PULLUP_DISABLE;
+	gpioConfig.mode = GPIO_MODE_INPUT;
+	gpioConfig.pull_up_en = GPIO_PULLUP_DISABLE;
 	gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpioConfig.intr_type    = GPIO_INTR_NEGEDGE;
+	gpioConfig.intr_type = GPIO_INTR_NEGEDGE;
 	gpio_config(&gpioConfig);
 
-	// GPIO17 - RFM Chip Select
-	gpioConfig.pin_bit_mask = GPIO_SEL_17;
-	gpioConfig.mode         = GPIO_MODE_OUTPUT;
-	gpioConfig.pull_up_en   = GPIO_PULLUP_ENABLE;
+	// GPIO17 - RFM Chip Select + 2 LEDs
+	gpioConfig.pin_bit_mask = GPIO_SEL_17 | GPIO_SEL_21 | GPIO_SEL_22;
+	gpioConfig.mode = GPIO_MODE_OUTPUT;
+	gpioConfig.pull_up_en = GPIO_PULLUP_ENABLE;
 	gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
-	gpioConfig.intr_type    = GPIO_INTR_DISABLE;
+	gpioConfig.intr_type = GPIO_INTR_DISABLE;
 	gpio_config(&gpioConfig);
 
-	RFM_CS_SET();
+	RFM_CS_SET()
+	;
+	RFM_LED1_OFF();
+	RFM_LED2_OFF();
 }
 
 void app_main()
 {
 	uint8_t send_buffer[] = { 0xCA, 0xFE, 0xAF, 0xFE, 0xCA, 0xFF, 0xEE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-    printf("Hello world!\n");
-    GPIO_Configuration();
+	printf("Hello world!\n");
+	GPIO_Configuration();
 
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    printf("This is ESP32 chip with %d CPU cores, WiFi%s%s, ",
-            chip_info.cores,
-            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+	/* Print chip information */
+	esp_chip_info_t chip_info;
+	esp_chip_info(&chip_info);
+	printf("This is ESP32 chip with %d CPU cores, WiFi%s%s, ", chip_info.cores,
+			(chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+			(chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
 
-    printf("silicon revision %d, ", chip_info.revision);
+	printf("silicon revision %d, ", chip_info.revision);
 
-    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
-            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
+	printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
+			(chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    printf("Initializing RFM12b\n");
-    RFM_Init();
-    printf("Initializing RFM12b finished\n");
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	printf("Initializing RFM12b\n");
+	RFM_Init();
+	printf("Initializing RFM12b finished\n");
 
-    while (1) {
-    	RFM_Send(2, send_buffer, sizeof(send_buffer));
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+	while (1) {
+		RFM_Send(2, send_buffer, sizeof(send_buffer));
+		while (!RFM_IsIdle()) {
+			while (RFM_IRQ_READ() == Bit_SET) {}
+			EXTI9_5_IRQHandler(NULL);
+		}
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
 
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
+	for (int i = 10; i >= 0; i--) {
+		printf("Restarting in %d seconds...\n", i);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	}
+	printf("Restarting now.\n");
+	fflush(stdout);
+	esp_restart();
 }

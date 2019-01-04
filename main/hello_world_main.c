@@ -75,10 +75,10 @@ void app_main()
 
 	while (1) {
 		RFM_Send(2, send_buffer, sizeof(send_buffer));
-		while (!RFM_IsIdle()) {
-			while (RFM_IRQ_READ() == Bit_SET) {}
-			EXTI9_5_IRQHandler(NULL);
-		}
+//		while (!RFM_IsIdle()) {
+//			while (RFM_IRQ_READ() == Bit_SET) {}
+//			EXTI9_5_IRQHandler(NULL);
+//		}
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 

@@ -67,6 +67,6 @@ uint8_t RFM_Send(uint16_t id, uint8_t *data, uint8_t len);
 uint8_t RFM_ReadFifo();
 uint8_t RFM_IsIdle();
 
-void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
+//void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
 
 #endif /* RADIO_RFM12B_H_ */

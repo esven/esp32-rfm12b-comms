@@ -74,12 +74,10 @@ void app_main()
 	printf("Initializing RFM12b finished\n");
 
 	while (1) {
-		RFM_Send(2, send_buffer, sizeof(send_buffer));
-//		while (!RFM_IsIdle()) {
-//			while (RFM_IRQ_READ() == Bit_SET) {}
-//			EXTI9_5_IRQHandler(NULL);
-//		}
-		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		printf("Receiving...\r\n");
+		RFM_RecvMode();
+//		RFM_Send(2, send_buffer, sizeof(send_buffer));
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
 
 	for (int i = 10; i >= 0; i--) {

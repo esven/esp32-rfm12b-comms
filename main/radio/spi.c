@@ -20,8 +20,6 @@ static spi_clock_reg_t clk_reg;
 
 void RFM_SPI_init(void)
 {
-//	esp_err_t ret;
-	int eff_clk;
 	bool ret;
 	uint32_t hw_flags;
 	spi_bus_config_t buscfg={
@@ -34,12 +32,6 @@ void RFM_SPI_init(void)
 			.flags= 0U | SPICOMMON_BUSFLAG_MASTER | SPICOMMON_BUSFLAG_NATIVE_PINS
 			| SPICOMMON_BUSFLAG_SCLK | SPICOMMON_BUSFLAG_MISO | SPICOMMON_BUSFLAG_MOSI,
 	};
-//	spi_device_interface_config_t devcfg={
-//			.clock_speed_hz=SPI_MASTER_FREQ_8M,    //Clock out at 1 MHz
-//			.mode=0,                               //SPI mode 0
-//			.spics_io_num=RFM_CS_PIN,              //CS pin
-//			.queue_size=1,
-//	};
 	//Initialize non-SPI GPIOs
 	gpio_set_direction(RFM_CS_PIN, GPIO_MODE_OUTPUT);
 	ret=spicommon_periph_claim(VSPI_HOST);
@@ -48,19 +40,13 @@ void RFM_SPI_init(void)
 				SPICOMMON_BUSFLAG_MASTER | buscfg.flags,
 				&hw_flags);
 		spi_hw=spicommon_hw_for_host(VSPI_HOST);
-		eff_clk = spi_cal_clock(APB_CLK_FREQ, SPI_MASTER_FREQ_8M, 128, (uint32_t *) &clk_reg);
+		spi_cal_clock(APB_CLK_FREQ, SPI_MASTER_FREQ_8M, 128, (uint32_t *) &clk_reg);
 		spicommon_cs_initialize(VSPI_HOST, RFM_CS_PIN, 0, false);
 		spi_hw->pin.master_ck_sel &= (1<<0);
 		spi_hw->pin.master_cs_pol &= (1<<0);
 		spi_hw->ctrl2.mosi_delay_mode = 0;
 		spi_hw->ctrl2.mosi_delay_num = 0;
 	}
-//	//Initialize the SPI bus
-//	ret=spi_bus_initialize(VSPI_HOST, &buscfg, 0);
-//	ESP_ERROR_CHECK(ret);
-//	//Attach the RFM12B to the SPI bus
-//	ret=spi_bus_add_device(VSPI_HOST, &devcfg, &spi);
-//	ESP_ERROR_CHECK(ret);
 }
 
 
@@ -70,7 +56,6 @@ uint16_t IRAM_ATTR SPI_Xfer(const uint16_t data)
 	uint16_t retData;
 	uint8_t tmp[4];
 	uint32_t dataBuffer;
-	esp_err_t ret;
 
 	spi_hw->slave.trans_done = 0;
     //Configure clock settings
@@ -90,7 +75,8 @@ uint16_t IRAM_ATTR SPI_Xfer(const uint16_t data)
 	//set hold_time to 0 will not actually append delay to CS
 	//set it to 1 since we do need at least one clock of hold time in most cases
 	spi_hw->ctrl2.hold_time=0;
-	if (spi_hw->ctrl2.hold_time == 0) spi_hw->ctrl2.hold_time = 1;
+	if (spi_hw->ctrl2.hold_time == 0)
+		spi_hw->ctrl2.hold_time = 1;
 	spi_hw->user.cs_hold=1;
 
 	spi_hw->pin.cs0_dis = 0;
@@ -133,22 +119,12 @@ uint16_t IRAM_ATTR SPI_Xfer(const uint16_t data)
 
 	//Kick off transfer
 	spi_hw->cmd.usr=1;
+	// Wait for transfer complete
 	while (spi_hw->cmd.usr==1) {}
+	// Read result
 	dataBuffer = spi_hw->data_buf[0];
 	memcpy(&tmp, &dataBuffer, 4);
 	retData = (tmp[0] << 8) | tmp[1];
-
-//	spi_transaction_t t;
-//	 uint8_t *s = (uint8_t *) &t;
-//	 for (int n = sizeof(t); n; n--, s++) *s = 0;  //Zero out the transaction
-//	t.flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
-//	t.length=16;                     //Data is 16 bits
-//	t.tx_data[0] = data >> 8;
-//	t.tx_data[1] = data & 0xFF;
-//	//t.tx_buffer = &data;       //The data is the cmd itself
-//	ret=spi_device_polling_transmit(spi, &t);  //Transmit!
-//	assert(ret==ESP_OK);            //Should have had no issues.
-//	retData = (t.rx_data[0] << 8) | t.rx_data[1];
 //	printf("TX: 0x%04X, RX: 0x%04X\r\n", data, retData);
 	return retData;
 }

@@ -1,7 +1,6 @@
 
 #include "platform.h"
 #include "spi.h"
-//#include "buf.h"
 
 #include "rfm12b.h"
 #include "driver/gpio.h"
@@ -15,7 +14,7 @@ static uint8_t DRAM_ATTR RFM_Len;
 
 static void IRAM_ATTR EXTI9_5_IRQHandler(void *args);
 
-uint16_t IRAM_ATTR RFM_xfer(uint16_t d)
+static uint16_t IRAM_ATTR RFM_xfer(uint16_t d)
 {
 	uint16_t ret;
 	RFM_CS_RST();
@@ -63,6 +62,9 @@ void RFM_Init(void)
 
 	gpio_install_isr_service(0);
 	gpio_isr_handler_add(RFM_IRQ_PIN, &EXTI9_5_IRQHandler, NULL);
+
+	while (RFM_IRQ_READ() == Bit_RESET)
+		RFM_xfer(0x0000);
 }
 
 void RFM_SetDataRate(uint8_t r)
@@ -161,6 +163,7 @@ void RFM_ScanMode()
 
 void RFM_RecvMode()
 {
+	RFM_LED2_OFF();
 	// enable recv mode
 	RFM_xfer(RFM_RECV_MODE);
 
@@ -232,24 +235,20 @@ uint8_t RFM_Send(uint16_t id, uint8_t *data, uint8_t len)
 	return 0;
 }
 
-
 static void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
-//void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
 {
 	static uint8_t chksum;
 	static uint16_t status;
 	static uint8_t data;
-//	uint8_t count = 0;
+	uint8_t count = 0;
 
-//	do {
+	do {
 		status = RFM_xfer(0x0000);
-//		count++;
-//	} while (!status && count < 10);
+		count++;
+	} while (!status && count < 2);
 
-	if (status & RFM_STATUS_FFOV_RGUR)
-		RFM_LED2_ON();
-//	else
-//		RFM_LED2_OFF();
+//	if (status & RFM_STATUS_FFOV_RGUR)
+//		RFM_LED2_ON();
 
 	// ignore LBD, EXT, WKUP, POR, FFOV
 	if (status & 0x8000) {
@@ -277,8 +276,10 @@ static void IRAM_ATTR EXTI9_5_IRQHandler(void *args)
 //				ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 			}
 			if ((RFM_Idx > 2) && (3 + RFM_Buffer[2] + 1 == RFM_Idx)) {
+				RFM_LED2_ON();
 				uint8_t c = ~chksum;
 				if (c == RFM_Buffer[RFM_Idx]) {
+					RFM_LED1_ON();
 					// RX done
 					RFM_IdleMode();
 

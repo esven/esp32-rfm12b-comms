@@ -54,7 +54,6 @@
 			<resource resourceType="PROJECT" workspacePath="/esp32-rfm12b-comms"/>
 		</configuration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.939314440;cdt.managedbuild.toolchain.gnu.cross.base.939314440.767617361;cdt.managedbuild.tool.gnu.cross.c.compiler.530909898;cdt.managedbuild.tool.gnu.c.compiler.input.1258791359">
@@ -63,5 +62,17 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.939314440;cdt.managedbuild.toolchain.gnu.cross.base.939314440.767617361;cdt.managedbuild.tool.gnu.cross.cpp.compiler.2141468867;cdt.managedbuild.tool.gnu.cpp.compiler.input.1029754970">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="flash" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j7</buildArguments>
+				<buildTarget>flash</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
 	</storageModule>
 </cproject>

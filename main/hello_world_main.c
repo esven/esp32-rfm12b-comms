@@ -62,10 +62,10 @@ void GPIO_RGBMatrix_Configuration(void) {
 	gpio_config_t gpioConfig;
 
 	// GPIO17 - RFM Chip Select
-	gpioConfig.pin_bit_mask = GPIO_SEL_0 | GPIO_SEL_2 | GPIO_SEL_4 | GPIO_SEL_12
-			| GPIO_SEL_13 | GPIO_SEL_14 | GPIO_SEL_15 | GPIO_SEL_16
-			| GPIO_SEL_17 | GPIO_SEL_18 | GPIO_SEL_19 | GPIO_SEL_21
-			| GPIO_SEL_22 | GPIO_SEL_23;
+	gpioConfig.pin_bit_mask = GPIO_SEL_4 | GPIO_SEL_12 | GPIO_SEL_13
+			| GPIO_SEL_14 | GPIO_SEL_15 | GPIO_SEL_16 | GPIO_SEL_17
+			| GPIO_SEL_27 | GPIO_SEL_32 | GPIO_SEL_33 | GPIO_SEL_34
+			| GPIO_SEL_36 | GPIO_SEL_39;
 	gpioConfig.mode = GPIO_MODE_OUTPUT;
 	gpioConfig.pull_up_en = GPIO_PULLUP_ENABLE;
 	gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;

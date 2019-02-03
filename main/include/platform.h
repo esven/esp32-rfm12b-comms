@@ -39,19 +39,18 @@
 //#define RFM_RST(x)         GPIO_WriteBit(RFM_RST_GPIO, RFM_RST_PIN, x)
 #define RFM_IRQ_READ()     gpio_get_level(RFM_IRQ_PIN)
 
-#define RGB_OE		0
-#define RGB_LAT		2
-#define RGB_CLK		4
-#define RGB_A		5
-#define RGB_B		9
-#define RGB_C		10
-#define RGB_D		12
-#define RGB_E		13
-#define RGB_R1		14
-#define RGB_G1		15
-#define RGB_B1		16
-#define RGB_R2		17
-#define RGB_G2		18
-#define RGB_B2		19
+#define RGB_OE		17
+#define RGB_LAT		16
+#define RGB_CLK		13
+#define RGB_A		4
+#define RGB_B		36
+#define RGB_C		39
+#define RGB_D		34
+#define RGB_R1		32
+#define RGB_G1		14
+#define RGB_B1		15
+#define RGB_R2		27
+#define RGB_G2		33
+#define RGB_B2		12
 
 #endif /* PLATFORM_H_ */
